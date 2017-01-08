@@ -1,14 +1,10 @@
-#include <MemoryFree.h>
-
 #include <Dhcp.h>
 #include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
 #include <EthernetServer.h>
 #include <EthernetUdp.h>
-#include <SPI.h>
 #include <math.h>
-#include <string.h>
 
 //Define Mac Adress
 byte mac[] = {
@@ -34,7 +30,7 @@ void setup() {
   }
   //Start the server and display IP Address
   server.begin();
-  Serial.print("server is at ");
+  Serial.print("Server is at ");
   Serial.println(Ethernet.localIP());
 }
 
@@ -76,8 +72,7 @@ void loop() {
   //Listen for incoming clients and execute code in if statement when client connects
   EthernetClient client = server.available();
   if (client) {
-    Serial.println("new client");
-    //delay(1000); //Wait for a second after client connects to decrease frequency of crashes
+    Serial.println("New client");
     //Define and/or Initialize used variables
     boolean currentLineIsBlank = true;
     boolean inRequestBody = false;
@@ -119,7 +114,7 @@ void loop() {
         }
         
         //Put the contents of the HTTP request body in the RequestBody variable
-        if(inRequestBody && !endOfRequest) {
+        if(inRequestBody) {
           RequestBody += c;
         }
 
@@ -133,6 +128,15 @@ void loop() {
         if (currentLineIsBlank && c == '\n') {
           inRequestBody = true;
         }
+
+        //Set currentLineIsBlank to indicate whether we're at the start of a new line or not
+        if (c == '\n') {
+          //We're on the start of a new line
+          currentLineIsBlank = true;
+        } else if(c != '\r') {
+          //C is a character, so we haven't reached a new line.
+          currentLineIsBlank = false;
+        }
         
         //Execute code in the if-statement when the request is finished
         if (endOfRequest) {
@@ -144,14 +148,6 @@ void loop() {
           client.println();
           client.println(ResponseString);
           break;
-        }
-        //Set currentLineIsBlank to indicate whether we're at the start of a new line or not
-        if (c == '\n') {
-          //We're on the start of a new line
-          currentLineIsBlank = true;
-        } else if(c != '\r') {
-          //C is a character, so we haven't reached a new line.
-          currentLineIsBlank = false;
         }
       }
     }
@@ -165,7 +161,7 @@ void loop() {
 
 void printIPAddress()
 {
-  Serial.print("My IP address: ");
+  Serial.print("Server is at ");
   for (byte thisByte = 0; thisByte < 4; thisByte++) {
     // print the value of each byte of the IP address:
     Serial.print(Ethernet.localIP()[thisByte], DEC);
@@ -186,11 +182,10 @@ String generateResponse(String RequestBody)
   
   //Determine the amount of Id/Action pairs
   for(int i = 0; i < RequestBody.length(); i++) {
-    if(RequestBody[i] == '&'){
+    if(RequestBody[i] == '='){
       IdActionPairCount++;
     }
-  }
-
+  };
   //Create Arrays for Id's and Actions and reset IdActionPairCount for re-use in next for-loop
   char* Ids[IdActionPairCount];
   char* Actions[IdActionPairCount];
