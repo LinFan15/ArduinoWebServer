@@ -187,8 +187,8 @@ String generateResponse(String RequestBody)
     }
   };
   //Create Arrays for Id's and Actions and reset IdActionPairCount for re-use in next for-loop
-  char* Ids[IdActionPairCount];
-  char* Actions[IdActionPairCount];
+  char Ids[IdActionPairCount][20];
+  char Actions[IdActionPairCount][20];
 
   IdActionPairCount = 0;
 
@@ -216,6 +216,12 @@ String generateResponse(String RequestBody)
   IdActionPairCount++;
   inId = true;
 
+  for(int i = 0; i < 3; i++) {
+    Serial.println(Actions[i]);
+  }
+  for(int i = 0; i < 3; i++) {
+    Serial.println(Ids[i]);
+  }
   //Execute logic using id's and actions and generate the HTTP Response body as a string
   ResponseBody = Actions[0];
   return ResponseBody; //Return string to be sent back to the client
