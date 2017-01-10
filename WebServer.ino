@@ -15,15 +15,7 @@ byte mac[] = {
 //Initialize EthernetServer Webserver on port 80
 EthernetServer server(80);
 
-void setup() {
-
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
-  pinMode(11, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(13, OUTPUT);
-  
+void setup() { 
   //Open serial communications and wait for port to open
   Serial.begin(9600);
   while (!Serial) {
@@ -231,21 +223,10 @@ String generateResponse(String RequestBody, String RequestMethod)
 
   //Execute logic using id's and actions and generate the HTTP Response body as a string
   if(RequestMethod == "POST") {
-    if(strcmp(Actions[0], "true") == 0) {
-      Serial.println("S1On");
-    } else {
-        Serial.println("S1Off");
-    }
-    if(strcmp(Actions[1], "true") == 0) {
-      Serial.println("S2On");
-    } else {
-        Serial.println("S2Off");
-    }
-    if(strcmp(Actions[2], "true") == 0) {
-      Serial.println("S3On");
-    } else {
-        Serial.println("S3Off");
-    }
+
+  }
+  if(RequestMethod == "GET") {
+    
   }
   return ResponseBody; //Return string to be sent back to the client
 }
