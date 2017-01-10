@@ -92,7 +92,6 @@ void loop() {
 
         //Get next character of HTTP Request
         char c = client.read();
-        Serial.write(c);
         //Empty RequestHeaderLine when starting on a new line of the HTTP Request
         if(currentLineIsBlank) {
           RequestHeaderLine = "";
@@ -145,6 +144,7 @@ void loop() {
         
         //Execute code in the if-statement when the request is finished
         if (endOfRequest) {
+          Serial.print(RequestMethod+ ' ');
           Serial.println(RequestBody);
           ResponseString = generateResponse(RequestBody, RequestMethod);
           //Send the HTTP response
