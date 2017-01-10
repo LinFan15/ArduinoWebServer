@@ -5,6 +5,7 @@
 #include <EthernetServer.h>
 #include <EthernetUdp.h>
 #include <math.h>
+#include <string.h>
 
 //Define Mac Adress
 byte mac[] = {
@@ -15,6 +16,14 @@ byte mac[] = {
 EthernetServer server(80);
 
 void setup() {
+
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  
   //Open serial communications and wait for port to open
   Serial.begin(9600);
   while (!Serial) {
@@ -80,6 +89,7 @@ void loop() {
     int RequestContentLengthArray[3] = {-1, -1, -1};
     int RequestContentLength = 0;
     int RequestContentLengthIntCount = 0;
+    String RequestMethod = "";
     String RequestHeaderLine = "";
     String RequestBody = "";
     String ResponseString = "";
@@ -90,7 +100,7 @@ void loop() {
 
         //Get next character of HTTP Request
         char c = client.read();
-        
+        Serial.write(c);
         //Empty RequestHeaderLine when starting on a new line of the HTTP Request
         if(currentLineIsBlank) {
           RequestHeaderLine = "";
@@ -105,6 +115,9 @@ void loop() {
             for(int i = 1; i < (RequestContentLengthIntCount + 2); i++) {
             RequestContentLength += (RequestContentLengthArray[(i-1)] * pow(10, ((RequestContentLengthIntCount + 1) - i)));
             }
+          }
+          else if((RequestHeaderLine == "POST" || RequestHeaderLine == "GET") && !inRequestBody) {
+            RequestMethod = RequestHeaderLine;
           }
           RequestHeaderLine += c;
         } else if(isdigit(c)){
@@ -141,7 +154,7 @@ void loop() {
         //Execute code in the if-statement when the request is finished
         if (endOfRequest) {
           Serial.println(RequestBody);
-          ResponseString = generateResponse(RequestBody);
+          ResponseString = generateResponse(RequestBody, RequestMethod);
           //Send the HTTP response
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html; charset=utf-8");
@@ -171,7 +184,7 @@ void printIPAddress()
   Serial.println();
 }
 
-String generateResponse(String RequestBody)
+String generateResponse(String RequestBody, String RequestMethod)
 {
   //Define and/or Initialize used variables
   bool inId = true;
@@ -216,14 +229,24 @@ String generateResponse(String RequestBody)
   IdActionPairCount++;
   inId = true;
 
-  for(int i = 0; i < 3; i++) {
-    Serial.println(Actions[i]);
-  }
-  for(int i = 0; i < 3; i++) {
-    Serial.println(Ids[i]);
-  }
   //Execute logic using id's and actions and generate the HTTP Response body as a string
-  ResponseBody = Actions[0];
+  if(RequestMethod == "POST") {
+    if(strcmp(Actions[0], "true") == 0) {
+      Serial.println("S1On");
+    } else {
+        Serial.println("S1Off");
+    }
+    if(strcmp(Actions[1], "true") == 0) {
+      Serial.println("S2On");
+    } else {
+        Serial.println("S2Off");
+    }
+    if(strcmp(Actions[2], "true") == 0) {
+      Serial.println("S3On");
+    } else {
+        Serial.println("S3Off");
+    }
+  }
   return ResponseBody; //Return string to be sent back to the client
 }
 
